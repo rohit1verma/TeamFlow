@@ -2,10 +2,12 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Menu, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import React from 'react'
 import { cn } from '@/lib/utils'
 import Logo from '@/public/Logo.png'
+import {RegisterLink, LoginLink, LogoutLink} from "@kinde-oss/kinde-auth-nextjs/components";
+import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs'
 
 const menuItems = [
     { name: 'Features', href: '#link' },
@@ -17,6 +19,8 @@ const menuItems = [
 export const HeroHeader = () => {
     const [menuState, setMenuState] = React.useState(false)
     const [isScrolled, setIsScrolled] = React.useState(false)
+    const { getUser, isLoading } = useKindeBrowserClient()
+    const user = typeof getUser === 'function' ? getUser() : getUser
 
     React.useEffect(() => {
         const handleScroll = () => {
@@ -25,10 +29,11 @@ export const HeroHeader = () => {
         window.addEventListener('scroll', handleScroll)
         return () => window.removeEventListener('scroll', handleScroll)
     }, [])
+
     return (
         <header>
             <nav
-                data-state={menuState && 'active'}
+                data-state={menuState ? 'active' : undefined}
                 className="fixed z-20 w-full px-2">
                 <div className={cn('mx-auto mt-2 max-w-6xl px-6 transition-all duration-300 lg:px-12', isScrolled && 'bg-background/50 max-w-4xl rounded-2xl border backdrop-blur-lg lg:px-5')}>
                     <div className="relative flex flex-wrap items-center justify-between gap-6 py-3 lg:gap-0 lg:py-4">
@@ -37,16 +42,15 @@ export const HeroHeader = () => {
                                 href="/"
                                 aria-label="home"
                                 className="flex items-center space-x-2">
-                                <Image
-                                 src={Logo} alt="Logo" width={32} height={32} />
-                                 <h1 className='text-2xl font-bold'>
+                                <Image src={Logo} alt="Logo" width={32} height={32} />
+                                <h1 className='text-2xl font-bold'>
                                     Tail<span className='text-primary'>Flow</span>
-                                 </h1>
+                                </h1>
                             </Link>
 
                             <button
                                 onClick={() => setMenuState(!menuState)}
-                                aria-label={menuState == true ? 'Close Menu' : 'Open Menu'}
+                                aria-label={menuState ? 'Close Menu' : 'Open Menu'}
                                 className="relative z-20 -m-2.5 -mr-4 block cursor-pointer p-2.5 lg:hidden">
                                 <Menu className="in-data-[state=active]:rotate-180 in-data-[state=active]:scale-0 in-data-[state=active]:opacity-0 m-auto size-6 duration-200" />
                                 <X className="in-data-[state=active]:rotate-0 in-data-[state=active]:scale-100 in-data-[state=active]:opacity-100 absolute inset-0 m-auto size-6 -rotate-180 scale-0 opacity-0 duration-200" />
@@ -81,33 +85,40 @@ export const HeroHeader = () => {
                                     ))}
                                 </ul>
                             </div>
-                            <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
-                                <Button
-                                    asChild
-                                    variant="outline"
-                                    size="sm"
-                                    className={cn(isScrolled && 'lg:hidden')}>
-                                    <Link href="#">
-                                        <span>Login</span>
-                                    </Link>
-                                </Button>
-                                <Button
-                                    asChild
-                                    size="sm"
-                                    className={cn(isScrolled && 'lg:hidden')}>
-                                    <Link href="#">
-                                        <span>Sign Up</span>
-                                    </Link>
-                                </Button>
-                                <Button
-                                    asChild
-                                    size="sm"
-                                    className={cn(isScrolled ? 'lg:inline-flex' : 'hidden')}>
-                                    <Link href="#">
-                                        <span>Get Started</span>
-                                    </Link>
-                                </Button>
-                            </div>
+
+                            {isLoading ? null : (
+                                <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
+                                    {user ? (
+                                        <>
+                                            <Link className={buttonVariants({ size: "sm" })} href="/workspace">
+                                                <span>Dashboard</span>
+                                            </Link>
+
+                                            <LogoutLink className={buttonVariants({ variant: "outline", size: "sm" })}>
+                                                <span>Logout</span>
+                                            </LogoutLink>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <LoginLink className={buttonVariants({ variant: "outline", size: "sm", className: cn(isScrolled && 'lg:hidden'), })}>
+                                                Login
+                                            </LoginLink>
+
+                                            <RegisterLink className={buttonVariants({ size: "sm", className: cn(isScrolled && 'lg:hidden') })}>
+                                                Sign Up
+                                            </RegisterLink>
+
+                                            <div className={cn(isScrolled ? 'lg:inline-flex':'hidden')}>
+                                            <RegisterLink className={buttonVariants({ size: "sm" })}>
+                                                Get Started
+                                            </RegisterLink>
+                                            </div>
+
+                                           
+                                        </>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
