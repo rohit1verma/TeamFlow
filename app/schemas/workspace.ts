@@ -1,4 +1,6 @@
 import {z} from 'zod'
 export const workspaceSchema = z.object({
     name:z.string().min(2).max(50)
-})
+});
+
+export type WorkspaceSchemeType = z.infer<typeof workspaceSchema>;
