@@ -44,7 +44,7 @@ export const HeroHeader = () => {
                                 className="flex items-center space-x-2">
                                 <Image src={Logo} alt="Logo" width={32} height={32} />
                                 <h1 className='text-2xl font-bold'>
-                                    Tail<span className='text-primary'>Flow</span>
+                                    Team<span className='text-primary'>Flow</span>
                                 </h1>
                             </Link>
 
